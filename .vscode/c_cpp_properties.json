@@ -4,7 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${default}",
-                "lexer/"
+                "lexer/",
+                "googletest/googletest/include/gtest"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -12,7 +13,14 @@
             ],
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "macos-clang-arm64"
+            "intelliSenseMode": "macos-clang-arm64",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin//clang",
+            "compilerArgs": [
+                "-Igoogletest/googletest/include ",
+                "-Igoogletest/googletest/include/gtest",
+                "-Wall",
+                "-std=c++17"
+            ]
         }
     ],
     "version": 4
