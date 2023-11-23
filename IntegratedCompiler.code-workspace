@@ -57,7 +57,10 @@
 			"variant": "cpp",
 			"vector": "cpp",
 			"algorithm": "cpp",
-			"set": "cpp"
+			"set": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"__tree": "cpp"
 		}
 	}
 }
