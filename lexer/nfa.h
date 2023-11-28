@@ -7,16 +7,21 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <deque>
+#include <map>
 
 using state_t = int;
-using transition_table = std::unordered_map<state_t, std::unordered_map<char, state_t>>;
+using transition_table = std::unordered_map<state_t, std::unordered_map<char, std::unordered_set<state_t>>>;
 
-class DFA {
+const char EPSILON = '\0';
+
+class NFA {
     public:
-        DFA(std::set<state_t> states, transition_table transitions, state_t start_state, std::unordered_set<state_t> accept_states);
+        NFA(std::set<state_t> states, transition_table transitions, state_t start_state, std::unordered_set<state_t> accept_states);
         std::string to_string();
-        static std::unique_ptr<DFA> string_to_DFA(std::string str);
-        static std::unique_ptr<DFA> concat_DFAs(std::unique_ptr<DFA> A, std::unique_ptr<DFA> B);
+        static std::shared_ptr<NFA> string_to_NFA(std::string str);
+        static std::shared_ptr<NFA> concat_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NFA> B);
+        static std::shared_ptr<NFA> alternate_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NFA> B);
         std::set<state_t> &get_states();
         transition_table &get_table();
         state_t get_start_state();
