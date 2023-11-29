@@ -78,7 +78,8 @@
 			"span": "cpp",
 			"sstream": "cpp",
 			"thread": "cpp",
-			"iterator": "cpp"
+			"iterator": "cpp",
+			"functional": "cpp"
 		}
 	}
 }
