@@ -1,15 +1,28 @@
 #include "nfa.h"
-NFA::NFA(std::set<state_t> states, transition_table transitions, state_t start_state, std::unordered_set<state_t> accept_states) :
+
+NFA::NFA(std::set<state_t> states, nfa_transition_table transitions, state_t start_state, std::unordered_set<state_t> accept_states) :
     m_states(states),
     m_transitions(transitions),
     m_start_state(start_state),
     m_accept_states(accept_states)
-{}
+{
+    std::string error;
+    if (m_states.find(m_start_state) == m_states.end()) {
+        error = "Error: state " + std::to_string(m_start_state) + " is not in the set of states\n";
+        throw std::logic_error(error);
+    }
+    for (state_t accept_state : m_accept_states) {
+        if (m_states.find(accept_state) == m_states.end()) {
+            error = "Error: accept state " + std::to_string(accept_state) + " is not in the set of states\n";
+            throw std::logic_error(error);
+        }
+    }
+}
 
 std::set<state_t> &NFA::get_states() {
     return this->m_states;
 }
-transition_table &NFA::get_table() {
+nfa_transition_table &NFA::get_table() {
     return this->m_transitions;
 }
 state_t NFA::get_start_state() {
@@ -37,7 +50,7 @@ std::string NFA::to_string() {
     char line_buff[1000];
     snprintf(line_buff, sizeof(line_buff), "%-12s %-12s %-12s\n", "From State", "Symbol", "To States");
     NFA_string += line_buff;
-    std::map<state_t, std::unordered_map<char, std::unordered_map<state_t, token_t>>> ordered_transitions(this->m_transitions.begin(), this->m_transitions.end());
+    std::map<state_t, std::unordered_map<token_t, std::unordered_map<state_t, token_t>>> ordered_transitions(this->m_transitions.begin(), this->m_transitions.end());
     for (auto [from_state, transitions] : ordered_transitions) {
         for (auto [symbol, to_set] : transitions) {
             snprintf(line_buff, sizeof(line_buff), "%-12d %-12s {", from_state, symbol == '\0' ? "EPSILON" : std::string(1, symbol).c_str());
@@ -65,7 +78,7 @@ std::string NFA::to_string() {
 
 std::shared_ptr<NFA> NFA::string_to_NFA(std::string str, token_t token) {
     std::set<state_t> states = {};
-    transition_table transitions = {};
+    nfa_transition_table transitions = {};
     state_t start_state = 1;
     std::unordered_set<state_t> accept_states = {};
     for (int i = 0; i < str.length(); i++) {
@@ -79,14 +92,15 @@ std::shared_ptr<NFA> NFA::string_to_NFA(std::string str, token_t token) {
 
 std::shared_ptr<NFA> NFA::concat_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NFA> B, token_t token) {
     std::set<state_t> states = A->get_states();
-    transition_table transitions = A->get_table();
+    nfa_transition_table transitions = A->get_table();
     state_t start_state = A->get_start_state();
     
     state_t max_state = A->get_max_state() + 1;
     state_t accept_state = max_state;
+    states.insert(accept_state);
     std::unordered_set<state_t> accept_states = {max_state};
     std::set<state_t> B_states = B->get_states();
-    transition_table B_transitions = B->get_table();
+    nfa_transition_table B_transitions = B->get_table();
     for (auto state : B_states) {
         states.insert(state + max_state);
         for (auto [symbol, to_set] : B_transitions[state]) {
@@ -99,6 +113,7 @@ std::shared_ptr<NFA> NFA::concat_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NF
     std::unordered_set<state_t> B_accept_states = B->get_accept_states();
     for (auto state : B_accept_states) {
         transitions[state + max_state][EPSILON].insert({accept_state, token});
+        states.insert({state + max_state});
     }
     for (auto state : A_accept_states) {
         transitions[state][EPSILON].insert({B->get_start_state() + max_state, NO_TOKEN});
@@ -108,7 +123,7 @@ std::shared_ptr<NFA> NFA::concat_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NF
 
 std::shared_ptr<NFA> NFA::alternate_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NFA> B, token_t token) {
     std::set<state_t> states = A->get_states();
-    transition_table transitions = A->get_table();
+    nfa_transition_table transitions = A->get_table();
     
     state_t max_state = A->get_max_state() + 2;
     state_t start_state = max_state - 1;
@@ -117,7 +132,7 @@ std::shared_ptr<NFA> NFA::alternate_NFAs(std::shared_ptr<NFA> A, std::shared_ptr
     states.insert(start_state);
     states.insert(accept_state);
     std::set<state_t> B_states = B->get_states();
-    transition_table B_transitions = B->get_table();
+    nfa_transition_table B_transitions = B->get_table();
     for (auto state : B_states) {
         states.insert(state + max_state);
         for (auto [symbol, to_set] : B_transitions[state]) {
@@ -141,7 +156,7 @@ std::shared_ptr<NFA> NFA::alternate_NFAs(std::shared_ptr<NFA> A, std::shared_ptr
 
 std::shared_ptr<NFA> NFA::repeat_NFA(std::shared_ptr<NFA> nfa, token_t token) {
      std::set<state_t> states = nfa->get_states();
-    transition_table transitions = nfa->get_table();
+    nfa_transition_table transitions = nfa->get_table();
     
     state_t start_state = nfa->get_max_state() + 1;
     state_t end_state = start_state + 1;
@@ -170,6 +185,9 @@ token_t NFA::parse(std::string input_str) {
         }
         for (int j = 0; j < frontier.size(); j++) {
             state_t current_state = frontier[j].first;
+            if (this->m_transitions[current_state].find(EPSILON) == this->m_transitions[current_state].end()) {
+                continue;
+            }
             for (auto [to_state, token] : this->m_transitions[current_state][EPSILON]) {
                 if (visited.count(to_state)) {
                     if (frontier[j].second == NO_TOKEN && token != NO_TOKEN) {
@@ -190,6 +208,9 @@ token_t NFA::parse(std::string input_str) {
         std::vector<std::pair<state_t, token_t>> new_frontier = {};
         char current_symbol = input_str[i];
         for (auto [from_state, ignore_token] : frontier) {
+            if (this->m_transitions[from_state].find(current_symbol) == this->m_transitions[from_state].end()) {
+                continue;
+            }
             for (auto [to_state, token] : this->m_transitions[from_state][current_symbol]) {
                 new_frontier.push_back({to_state, token});
             }
