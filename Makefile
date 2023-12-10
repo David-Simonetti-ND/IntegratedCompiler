@@ -1,23 +1,31 @@
 CXXFLAGS = -std=c++17 -Wall
-GMOCK_PATH = googletest/googletest/include/gest/
+GTEST_LIBS = -Lgoogletest/build/lib -Igoogletest/googletest/include -Igoogletest/googletest/include/gtest -lgtest 
+
+NFA_H = lexer/include/nfa.h
+DFA_H = lexer/include/dfa.h
+AUTOMATA_H = lexer/include/automata.h
+LEXER_INCLUDE = -Ilexer/include
 
 main: main.o nfa.o 
 	clang $(CXXFLAGS) -lstdc++ objs/main.o objs/nfa.o -o bin/main
 
-main.o: main/main.cpp lexer/nfa.h main/compiler.h
-	clang $(CXXFLAGS) -Ilexer/ main/main.cpp -c -o objs/main.o
+main.o: main/main.cpp $(NFA_H) main/compiler.h
+	clang $(CXXFLAGS) $(LEXER_INCLUDE) main/main.cpp -c -o objs/main.o
 
-test_nfa: nfa.o lexer/nfa.h lexer/test_nfa.cpp
-	clang $(CXXFLAGS) -lstdc++ -Lgoogletest/build/lib -Igoogletest/googletest/include -Igoogletest/googletest/include/gtest -lgtest objs/nfa.o lexer/test_nfa.cpp -o bin/test_nfa
+test_nfa: nfa.o $(NFA_H) lexer/test/test_nfa.cpp
+	clang $(CXXFLAGS) -lstdc++ $(GTEST_LIBS) $(LEXER_INCLUDE) objs/nfa.o lexer/test/test_nfa.cpp -o bin/test_nfa
 
-nfa.o: lexer/nfa.cpp lexer/nfa.h lexer/automata.h
-	clang $(CXXFLAGS) lexer/nfa.cpp -c -o objs/nfa.o
+test_dfa: dfa.o $(DFA_H) lexer/test/test_dfa.cpp nfa.o
+	clang $(CXXFLAGS) -lstdc++ $(GTEST_LIBS) $(LEXER_INCLUDE) objs/dfa.o objs/nfa.o lexer/test/test_dfa.cpp -o bin/test_dfa
 
-test_dfa: dfa.o lexer/dfa.h lexer/test_dfa.cpp nfa.o
-	clang $(CXXFLAGS) -lstdc++ -Lgoogletest/build/lib -Igoogletest/googletest/include -Igoogletest/googletest/include/gtest -lgtest objs/dfa.o objs/nfa.o lexer/test_dfa.cpp -o bin/test_dfa
+nfa_dfa_speed_test: dfa.o nfa.o $(DFA_H) $(NFA_H) lexer/test/nfa_dfa_speed_test.cpp
+	clang $(CXXFLAGS) -lstdc++ $(GTEST_LIBS) $(LEXER_INCLUDE) objs/dfa.o objs/nfa.o lexer/test/nfa_dfa_speed_test.cpp -o bin/nfa_dfa_speed_test
 
-dfa.o: lexer/dfa.cpp lexer/dfa.h lexer/automata.h
-	clang $(CXXFLAGS) lexer/dfa.cpp -c -o objs/dfa.o
+nfa.o: lexer/src/nfa.cpp $(NFA_H) $(AUTOMATA_H)
+	clang $(CXXFLAGS) $(LEXER_INCLUDE) lexer/src/nfa.cpp -c -o objs/nfa.o
+
+dfa.o: lexer/src/dfa.cpp $(DFA_H) $(AUTOMATA_H)
+	clang $(CXXFLAGS) $(LEXER_INCLUDE) lexer/src/dfa.cpp -c -o objs/dfa.o
 
 gtest:
 	cmake -Bgoogletest/build -Sgoogletest/

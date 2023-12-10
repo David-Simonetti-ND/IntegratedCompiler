@@ -18,6 +18,7 @@
             "compilerArgs": [
                 "-Igoogletest/googletest/include ",
                 "-Igoogletest/googletest/include/gtest",
+                "-Ilexer/include",
                 "-Wall",
                 "-std=c++17"
             ]
