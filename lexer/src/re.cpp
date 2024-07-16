@@ -23,9 +23,28 @@ regular_expression::regular_expression(re_type variety, re_ptr left, re_ptr righ
 re_ptr regular_expression::parse_re(std::string re_expr) {
     int l = 0;
     int r = re_expr.length();
-    return regular_expression::parse_re(re_expr, l, r);
+    re_ptr re = regular_expression::parse_re(re_expr, l, r);
+    re->compress_re_strings();
+    return re;
 }
 
+bool regular_expression::compare_re(re_ptr other) {
+    if (this->m_variety != other->m_variety) return false;
+    if ( (this->m_left == nullptr && other->m_left != nullptr) ||
+             (this->m_left != nullptr && other->m_left == nullptr) ||
+             (this->m_right == nullptr && other->m_right != nullptr) ||
+             (this->m_right != nullptr && other->m_right == nullptr))
+        return false;
+    else if (this->m_variety == EPSILON || this->m_variety == STRING)
+        return this->re_str == other->re_str;
+    else if (this->m_variety == STAR) 
+        return this->m_left->compare_re(other->m_left);
+    else {
+        bool are_left_equal = this->m_left == nullptr ? true : this->m_left->compare_re(other->m_left);
+        bool are_right_equal = this->m_right == nullptr ? true : this->m_right->compare_re(other->m_right);
+        return are_left_equal && are_right_equal;
+    }
+}
 
 re_ptr regular_expression::parse_re(std::string re_expr, int &l, int &r) {
     re_ptr term = parse_term(re_expr, l, r);
@@ -74,7 +93,7 @@ re_ptr regular_expression::parse_base(std::string re_expr, int &l, int &r) {
         return new_regex;
     }
     else {
-        return std::make_shared<regular_expression>(CHARACTER, nullptr, nullptr, std::string(1, re_expr[l++]));
+        return std::make_shared<regular_expression>(STRING, nullptr, nullptr, std::string(1, re_expr[l++]));
     }
 }
 
@@ -93,8 +112,6 @@ std::string regular_expression::print_re() {
     switch (this->m_variety) {
         case EPSILON:
             return "";
-        case CHARACTER:
-            return this->re_str;
         case ALTERNATION:
             return leftval + "|" + rightval;
         case CONCATENATION:
@@ -104,4 +121,33 @@ std::string regular_expression::print_re() {
         case STAR:
             return leftval + "*";
     }
+}
+
+void regular_expression::compress_re_strings() {
+    //std::cout << this->print_re() << " before\n";
+    if (this->m_left == nullptr && this->m_right != nullptr && this->m_right->m_variety == STRING && this->m_variety == CONCATENATION) {
+        this->m_variety = STRING;
+        this->re_str = this->m_right->re_str;
+        this->m_left = nullptr;
+        this->m_right = nullptr;
+        return;
+    }
+    if (this->m_left == nullptr || this->m_right == nullptr) return;
+    //std::cout << this->print_re() << " after " << this->m_left->print_re() << " "  << this->m_right->print_re() <<  " " << this->m_variety << "\n";
+    //std::cout << (this->m_left->m_variety) << " " << (this->m_right->m_variety) << "\n";
+    this->m_left->compress_re_strings();
+    this->m_right->compress_re_strings();
+
+    
+
+    if (this->m_variety == CONCATENATION) {
+        if (this->m_left->m_variety == STRING && this->m_right->m_variety == STRING) {
+            this->m_variety = STRING;
+            this->re_str = this->m_left->re_str + this->m_right->re_str;
+            this->m_left = nullptr;
+            this->m_right = nullptr;
+        }
+    }
+    //std::cout << this->print_re() << " " << this->m_variety << " afterafter\n";
+    return;
 }

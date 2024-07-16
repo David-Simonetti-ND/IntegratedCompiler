@@ -13,7 +13,6 @@
 
 enum re_type {
     EPSILON,
-    CHARACTER,
     STRING,
     CONCATENATION,
     ALTERNATION,
@@ -37,6 +36,8 @@ struct regular_expression {
     static re_ptr parse_base(std::string re_expr, int &l, int &r);
     
     std::string print_re();
+    void compress_re_strings();
+    bool compare_re(re_ptr other);
 };
 
 
