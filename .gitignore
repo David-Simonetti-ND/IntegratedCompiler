@@ -12,3 +12,5 @@ build/*
 **/*.cbp
 **/CMakeScripts
 **/compile_commands.json
+.cache/*
+.vscode/*
