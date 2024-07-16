@@ -124,7 +124,6 @@ std::string regular_expression::print_re() {
 }
 
 void regular_expression::compress_re_strings() {
-    //std::cout << this->print_re() << " before\n";
     if (this->m_left == nullptr && this->m_right != nullptr && this->m_right->m_variety == STRING && this->m_variety == CONCATENATION) {
         this->m_variety = STRING;
         this->re_str = this->m_right->re_str;
@@ -133,12 +132,8 @@ void regular_expression::compress_re_strings() {
         return;
     }
     if (this->m_left == nullptr || this->m_right == nullptr) return;
-    //std::cout << this->print_re() << " after " << this->m_left->print_re() << " "  << this->m_right->print_re() <<  " " << this->m_variety << "\n";
-    //std::cout << (this->m_left->m_variety) << " " << (this->m_right->m_variety) << "\n";
     this->m_left->compress_re_strings();
-    this->m_right->compress_re_strings();
-
-    
+    this->m_right->compress_re_strings();    
 
     if (this->m_variety == CONCATENATION) {
         if (this->m_left->m_variety == STRING && this->m_right->m_variety == STRING) {
@@ -148,6 +143,5 @@ void regular_expression::compress_re_strings() {
             this->m_right = nullptr;
         }
     }
-    //std::cout << this->print_re() << " " << this->m_variety << " afterafter\n";
     return;
 }
