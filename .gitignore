@@ -1,5 +1,6 @@
 objs/*
 bin/*
+build/*
 .DS_STORE
 **/cmake-build-debug
 **/CMakeCache.txt
