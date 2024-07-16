@@ -64,5 +64,6 @@
         "deque": "cpp",
         "map": "cpp"
     },
-    "C_Cpp.default.compilerPath": "/opt/homebrew/opt/llvm/bin/clang++"
+    "C_Cpp.default.compilerPath": "/opt/homebrew/opt/llvm/bin/clang++",
+    "cmake.configureOnOpen": true
 }

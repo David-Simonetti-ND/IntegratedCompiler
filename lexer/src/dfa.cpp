@@ -107,7 +107,7 @@ std::shared_ptr<DFA> DFA::powerset_construction(std::set<state_t> states,
         }
         for (int j = 0; j < states.size(); j++) {
             state_t current_state = states[j].first;
-            for (auto [to_state, token] : transitions[current_state][EPSILON]) {
+            for (auto [to_state, token] : transitions[current_state][EPSILON_TRANS]) {
                 if (visited.count(to_state)) {
                     if (states[j].second == NO_TOKEN && token != NO_TOKEN) {
                         states[j].second = token;
@@ -179,7 +179,7 @@ std::shared_ptr<DFA> DFA::powerset_construction(std::set<state_t> states,
 
         std::set<token_t> outgoing_symbols = find_outgoing_symbols(current_states);
         for (token_t symbol : outgoing_symbols) {
-            if (symbol == EPSILON) {
+            if (symbol == EPSILON_TRANS) {
                 continue;
             }
             frontier.push_back(find_next_states(current_states, symbol));
@@ -189,7 +189,7 @@ std::shared_ptr<DFA> DFA::powerset_construction(std::set<state_t> states,
     for (auto &[nfa_states, new_state] : state_map) {
         std::set<token_t> outgoing_symbols = find_outgoing_symbols(nfa_states);
         for (token_t symbol : outgoing_symbols) {
-            if (symbol == EPSILON) {
+            if (symbol == EPSILON_TRANS) {
                 continue;
             }
             auto connected_state = find_next_states(nfa_states, symbol);

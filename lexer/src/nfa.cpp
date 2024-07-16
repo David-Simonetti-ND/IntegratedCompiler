@@ -112,11 +112,11 @@ std::shared_ptr<NFA> NFA::concat_NFAs(std::shared_ptr<NFA> A, std::shared_ptr<NF
     std::unordered_set<state_t> A_accept_states = A->get_accept_states();
     std::unordered_set<state_t> B_accept_states = B->get_accept_states();
     for (auto state : B_accept_states) {
-        transitions[state + max_state][EPSILON].insert({accept_state, token});
+        transitions[state + max_state][EPSILON_TRANS].insert({accept_state, token});
         states.insert({state + max_state});
     }
     for (auto state : A_accept_states) {
-        transitions[state][EPSILON].insert({B->get_start_state() + max_state, NO_TOKEN});
+        transitions[state][EPSILON_TRANS].insert({B->get_start_state() + max_state, NO_TOKEN});
     }
     return std::make_unique<NFA>(states, transitions, start_state, accept_states);
 }
@@ -144,13 +144,13 @@ std::shared_ptr<NFA> NFA::alternate_NFAs(std::shared_ptr<NFA> A, std::shared_ptr
     std::unordered_set<state_t> A_accept_states = A->get_accept_states();
     std::unordered_set<state_t> B_accept_states = B->get_accept_states();
     for (auto state : A_accept_states) {
-        transitions[state][EPSILON].insert({accept_state, token});
+        transitions[state][EPSILON_TRANS].insert({accept_state, token});
     }
     for (auto state : B_accept_states) {
-         transitions[state + max_state][EPSILON].insert({accept_state, token});
+         transitions[state + max_state][EPSILON_TRANS].insert({accept_state, token});
     }
-    transitions[start_state][EPSILON].insert({A->get_start_state(), NO_TOKEN});
-    transitions[start_state][EPSILON].insert({B->get_start_state() + max_state, NO_TOKEN});
+    transitions[start_state][EPSILON_TRANS].insert({A->get_start_state(), NO_TOKEN});
+    transitions[start_state][EPSILON_TRANS].insert({B->get_start_state() + max_state, NO_TOKEN});
     return std::make_unique<NFA>(states, transitions, start_state, accept_states);
 }
 
@@ -164,12 +164,12 @@ std::shared_ptr<NFA> NFA::repeat_NFA(std::shared_ptr<NFA> nfa, token_t token) {
     states.insert(start_state);
     states.insert(end_state);
 
-    transitions[start_state][EPSILON].insert({nfa->get_start_state(), NO_TOKEN});
-    transitions[start_state][EPSILON].insert({start_state, token});
-    transitions[end_state][EPSILON].insert({start_state, NO_TOKEN});
+    transitions[start_state][EPSILON_TRANS].insert({nfa->get_start_state(), NO_TOKEN});
+    transitions[start_state][EPSILON_TRANS].insert({start_state, token});
+    transitions[end_state][EPSILON_TRANS].insert({start_state, NO_TOKEN});
     auto nfa_accept_states = nfa->get_accept_states();
     for (auto accept_state : nfa_accept_states) {
-        transitions[accept_state][EPSILON].insert({end_state, token});
+        transitions[accept_state][EPSILON_TRANS].insert({end_state, token});
     }
 
     return std::make_unique<NFA>(states, transitions, start_state, accept_states);
@@ -185,10 +185,10 @@ token_t NFA::parse(std::string input_str) {
         }
         for (int j = 0; j < frontier.size(); j++) {
             state_t current_state = frontier[j].first;
-            if (this->m_transitions[current_state].find(EPSILON) == this->m_transitions[current_state].end()) {
+            if (this->m_transitions[current_state].find(EPSILON_TRANS) == this->m_transitions[current_state].end()) {
                 continue;
             }
-            for (auto [to_state, token] : this->m_transitions[current_state][EPSILON]) {
+            for (auto [to_state, token] : this->m_transitions[current_state][EPSILON_TRANS]) {
                 if (visited.count(to_state)) {
                     if (frontier[j].second == NO_TOKEN && token != NO_TOKEN) {
                         frontier[j].second = token;

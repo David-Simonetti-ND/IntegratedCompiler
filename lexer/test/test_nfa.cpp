@@ -1,4 +1,4 @@
-#include "gtest.h"
+#include <gtest/gtest.h>
 #include "nfa.h"
 
 token_t successful_parse = 1;

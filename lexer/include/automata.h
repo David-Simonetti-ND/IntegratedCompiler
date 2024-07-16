@@ -10,6 +10,7 @@
 #include <deque>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 using state_t = int;
 using token_t = int;
@@ -17,7 +18,7 @@ using token_t = int;
 using dfa_transition_table = std::unordered_map<state_t, std::unordered_map<token_t, std::pair<state_t, token_t>>>;
 using nfa_transition_table = std::unordered_map<state_t, std::unordered_map<token_t, std::unordered_map<state_t, token_t>>>;
 
-const char EPSILON = '\0';
+const char EPSILON_TRANS = '\0';
 const token_t NO_TOKEN = 0;
 const token_t ERROR_TOKEN = -1;
 

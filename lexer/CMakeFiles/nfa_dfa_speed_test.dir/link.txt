@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wall CMakeFiles/nfa_dfa_speed_test.dir/test/nfa_dfa_speed_test.cpp.o -o ../bin/nfa_dfa_speed_test  ../lib/liblexer_lib.a 
