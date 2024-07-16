@@ -1,2 +1,0 @@
-/usr/bin/ar qc libLexer.a CMakeFiles/Lexer.dir/src/dfa.cpp.o CMakeFiles/Lexer.dir/src/nfa.cpp.o CMakeFiles/Lexer.dir/src/re.cpp.o
-/usr/bin/ranlib libLexer.a

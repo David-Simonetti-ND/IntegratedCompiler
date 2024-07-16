@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wall CMakeFiles/test_dfa.dir/test/test_dfa.cpp.o -o ../bin/test_dfa  ../lib/liblexer_lib.a ../lib/libgtest.a ../lib/libgtest_main.a ../lib/libgtest.a 

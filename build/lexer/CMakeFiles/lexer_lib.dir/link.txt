@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/liblexer_lib.a CMakeFiles/lexer_lib.dir/src/dfa.cpp.o CMakeFiles/lexer_lib.dir/src/nfa.cpp.o CMakeFiles/lexer_lib.dir/src/re.cpp.o
-/usr/bin/ranlib ../lib/liblexer_lib.a

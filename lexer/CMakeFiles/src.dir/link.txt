@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsrc.a CMakeFiles/src.dir/src/dfa.cpp.o CMakeFiles/src.dir/src/nfa.cpp.o CMakeFiles/src.dir/src/re.cpp.o
-/usr/bin/ranlib libsrc.a
