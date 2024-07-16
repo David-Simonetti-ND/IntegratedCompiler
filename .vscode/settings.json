@@ -60,7 +60,9 @@
         "charconv": "cpp",
         "complex": "cpp",
         "optional": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "deque": "cpp",
+        "map": "cpp"
     },
     "C_Cpp.default.compilerPath": "/opt/homebrew/opt/llvm/bin/clang++"
 }
